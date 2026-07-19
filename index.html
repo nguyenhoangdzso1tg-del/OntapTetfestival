@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ứng Dụng Học Thuộc Lòng Bài Văn Tết</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-main: #2d3748;
+            --primary: #3182ce;
+            --primary-hover: #2b6cb0;
+            --success: #38a169;
+            --error: #e53e3e;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 700px;
+            width: 100%;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        h1 {
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 14px;
+            color: #718096;
+            margin-bottom: 25px;
+        }
+
+        .progress-container {
+            background: var(--border);
+            border-radius: 10px;
+            height: 8px;
+            width: 100%;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: var(--primary);
+            height: 100%;
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .card {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            font-size: 18px;
+            position: relative;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hint {
+            font-size: 14px;
+            color: #a0aec0;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+
+        .input-area {
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus, textarea:focus {
+            border-color: var(--primary);
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 15px;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .feedback.correct {
+            display: block;
+            background: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+        }
+
+        .feedback.wrong {
+            display: block;
+            background: #fed7d7;
+            color: #742a2a;
+            border: 1px solid #feb2b2;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            gap: 10px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        .blank-space {
+            border-bottom: 2px dashed var(--primary);
+            color: var(--primary);
+            font-weight: 600;
+            padding: 0 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Chinh Phục Bài Văn Tết 🌸</h1>
+    <div class="subtitle">Học bằng phương pháp Lặp lại ngắt quãng & Chủ động gợi nhớ</div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <div class="card" id="questionCard">
+        <div class="hint" id="modeHint">Chế độ: Điền vào chỗ trống</div>
+        <div id="sentenceText">Đang tải câu hỏi...</div>
+    </div>
+
+    <div class="input-area">
+        <input type="text" id="userInput" placeholder="Nhập từ hoặc cả câu vào đây..." autocomplete="off">
+        <div class="feedback" id="feedbackBox"></div>
+    </div>
+
+    <div class="btn-group">
+        <button class="btn-secondary" id="skipBtn">Bỏ qua</button>
+        <button class="btn-primary" id="checkBtn">Kiểm tra</button>
+    </div>
+</div>
+
+<script>
+    // Toàn bộ văn bản được chia thành các câu nhỏ để dễ lặp lại ngắt quãng
+    const originalSentences = [
+        "Tet is the biggest and most important festival in Vietnam.",
+        "It usually takes place in late January or early February.",
+        "For Vietnamese people, Tet is a special time because families can come back home and spend time together.",
+        "A few weeks before Tet, everyone gets busy.",
+        "People clean and decorate their houses to welcome the New Year.",
+        "They buy flowers, new clothes, and food for the holiday.",
+        "Many families make traditional foods such as Banh Chung and Banh Tet.",
+        "People who work or study far from home usually travel back to be with their families.",
+        "During Tet, there are many fun activities in my town.",
+        "People can see zodiac decorations, enjoy free musical fountain shows, and watch fireworks at night.",
+        "Many shops often have special Tet sales, so I can buy my favorite clothes at cheaper prices.",
+        "Families also enjoy big meals together and visit their relatives and friends.",
+        "In my opinion, Tet is the best festival in Vietnam.",
+        "I love it because I can spend time with my family, eat delicious food, enjoy many fun activities, and create wonderful memories.",
+        "Every year, I look forward to Tet because it always brings me happiness and joy."
+    ];
+
+    // Các từ khóa sẽ bị ẩn đi trong chế độ điền chỗ trống
+    const blanksData = [
+        { text: "Tet is the [biggest] and most [important] festival in Vietnam.", answers: ["biggest", "important"] },
+        { text: "It usually takes place in [late January] or [early February].", answers: ["late January", "early February"] },
+        { text: "For Vietnamese people, Tet is a special time because families can [come back home] and spend time together.", answers: ["come back home"] },
+        { text: "A few weeks before Tet, everyone gets [busy].", answers: ["busy"] },
+        { text: "People [clean] and [decorate] their houses to welcome the New Year.", answers: ["clean", "decorate"] },
+        { text: "They buy [flowers], new clothes, and [food] for the holiday.", answers: ["flowers", "food"] },
+        { text: "Many families make [traditional foods] such as Banh Chung and Banh Tet.", answers: ["traditional foods"] },
+        { text: "People who work or study [far from home] usually travel back to be with their families.", answers: ["far from home"] },
+        { text: "During Tet, there are many [fun activities] in my town.", answers: ["fun activities"] },
+        { text: "People can see [zodiac decorations], enjoy free musical fountain shows, and watch [fireworks] at night.", answers: ["zodiac decorations", "fireworks"] },
+        { text: "Many shops often have special [Tet sales], so I can buy my favorite clothes at [cheaper prices].", answers: ["Tet sales", "cheaper prices"] },
+        { text: "Families also enjoy [big meals] together and visit their [relatives] and friends.", answers: ["big meals", "relatives"] },
+        { text: "In my opinion, Tet is the [best festival] in Vietnam.", answers: ["best festival"] },
+        { text: "I love it because I can spend time with my family, eat [delicious food], enjoy many fun activities, and create [wonderful memories].", answers: ["delicious food", "wonderful memories"] },
+        { text: "Every year, I look forward to Tet because it always brings me [happiness and joy].", answers: ["happiness and joy"] }
+    ];
+
+    let currentIndex = 0;
+    let isFullWriteMode = false; // Thuộc tính chuyển đổi giữa điền từ và gõ cả câu
+    let wrongAttempts = {}; // Lưu số lần làm sai để áp dụng ngắt quãng (câu sai xuất hiện lại)
+
+    const sentenceText = document.getElementById("sentenceText");
+    const userInput = document.getElementById("userInput");
+    const feedbackBox = document.getElementById("feedbackBox");
+    const checkBtn = document.getElementById("checkBtn");
+    const skipBtn = document.getElementById("skipBtn");
+    const progressBar = document.getElementById("progressBar");
+    const modeHint = document.getElementById("modeHint");
+
+    function loadQuestion() {
+        feedbackBox.style.display = "none";
+        userInput.value = "";
+        userInput.focus();
+        
+        // Cập nhật thanh tiến độ
+        const progress = (currentIndex / originalSentences.length) * 100;
+        progressBar.style.width = `${progress}%`;
+
+        if (currentIndex >= originalSentences.length) {
+            if (!isFullWriteMode) {
+                // Sau khi xong chế độ điền từ, nâng cấp lên chế độ gõ cả câu (Spaced Repetition nâng cao)
+                isFullWriteMode = true;
+                currentIndex = 0;
+                alert("Xuất sắc! Bạn đã hoàn thành chế độ Điền từ. Bây giờ thử thách nâng cao: Tự gõ lại cả câu nhé!");
+                loadQuestion();
+            } else {
+                sentenceText.innerHTML = "🎉 Chúc mừng Hoàng! Bạn đã thuộc lòng và viết chính xác toàn bộ bài văn Tết rồi! Sẵn sàng đi thi thôi!";
+                userInput.style.display = "none";
+                checkBtn.style.display = "none";
+                skipBtn.style.display = "none";
+                return;
+            }
+        }
+
+        if (!isFullWriteMode) {
+            modeHint.innerText = `Chế độ: Điền từ vào chỗ trống (Câu ${currentIndex + 1}/${originalSentences.length})`;
+            userInput.placeholder = "Nhập (các) từ còn thiếu, cách nhau bằng dấu phẩy nếu có từ 2 ô trở lên...";
+            
+            // Render văn bản có chứa dấu gạch dưới thay cho từ ẩn
+            let displayStr = blanksData[currentIndex].text;
+            blanksData[currentIndex].answers.forEach(ans => {
+                displayStr = displayStr.replace(`[${ans}]`, `<span class="blank-space">_______</span>`);
+            });
+            sentenceText.innerHTML = displayStr;
+        } else {
+            modeHint.innerText = `Chế độ nâng cao: Gõ lại toàn bộ câu bằng tiếng Anh (Câu ${currentIndex + 1}/${originalSentences.length})`;
+            userInput.placeholder = "Tự gõ lại nguyên văn cả câu này...";
+            // Gợi ý nghĩa hoặc câu tiếng Việt nếu cần (ở đây hiển thị câu ẩn để kích thích trí nhớ)
+            sentenceText.innerHTML = `<span style="color:#718096; font-size:16px;">Gợi ý câu:</span><br> ${originalSentences[currentIndex].substring(0, 10)}... (Hãy tự nhớ phần còn lại)`;
+        }
+    }
+
+    function checkAnswer() {
+        const userStr = userInput.value.trim().toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"");
+        
+        if (!isFullWriteMode) {
+            // Kiểm tra chế độ điền từ
+            const correctAnswers = blanksData[currentIndex].answers.map(a => a.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,""));
+            // Hỗ trợ nhập nhiều đáp án cách nhau bằng dấu phẩy
+            const userAnswers = userStr.split(",").map(a => a.trim());
+
+            let isAllCorrect = true;
+            correctAnswers.forEach((ans, idx) => {
+                if (!userAnswers[idx] || userAnswers[idx] !== ans) {
+                    isAllCorrect = false;
+                }
+            });
+
+            if (isAllCorrect) {
+                showFeedback(true, "Chính xác! Bạn nhớ rất tốt.");
+                setTimeout(() => {
+                    currentIndex++;
+                    loadQuestion();
+                }, 1500);
+            } else {
+                showFeedback(false, `Chưa đúng rồi! Đáp án đúng phải là: <strong>${blanksData[currentIndex].answers.join(", ")}</strong>`);
+                // Kỹ thuật Spaced Repetition: Câu sai sẽ bị phạt đẩy lùi lại để tí nữa gặp lại câu này
+                pushBackOnFailure();
+            }
+        } else {
+            // Kiểm tra chế độ gõ cả câu
+            const targetStr = originalSentences[currentIndex].toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"");
+            
+            if (userStr === targetStr) {
+                showFeedback(true, "Quá đỉnh! Giống từng chữ một.");
+                setTimeout(() => {
+                    currentIndex++;
+                    loadQuestion();
+                }, 1500);
+            } else {
+                showFeedback(false, `Sai một chút rồi. Nguyên văn đúng là:<br><strong>${originalSentences[currentIndex]}</strong>`);
+                pushBackOnFailure();
+            }
+        }
+    }
+
+    function showFeedback(isCorrect, message) {
+        feedbackBox.innerHTML = message;
+        feedbackBox.className = isCorrect ? "feedback correct" : "feedback wrong";
+    }
+
+    function pushBackOnFailure() {
+        // Nếu làm sai, câu này sẽ được đảo lịch để xuất hiện lại sau 2 câu nữa cho nhớ lâu
+        if(currentIndex + 2 < originalSentences.length) {
+            // Đổi vị trí tạm thời trong mảng để tạo hiệu ứng lặp lại ngắt quãng ngắn
+            let tempOriginal = originalSentences[currentIndex];
+            let tempBlank = blanksData[currentIndex];
+            
+            originalSentences.splice(currentIndex, 1);
+            blanksData.splice(currentIndex, 1);
+            
+            originalSentences.splice(currentIndex + 2, 0, tempOriginal);
+            blanksData.splice(currentIndex + 2, 0, tempBlank);
+        }
+    }
+
+    checkBtn.addEventListener("click", checkAnswer);
+    userInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") checkAnswer();
+    });
+
+    skipBtn.addEventListener("click", () => {
+        if (!isFullWriteMode) {
+            showFeedback(false, `Đáp án đúng: <strong>${blanksData[currentIndex].answers.join(", ")}</strong>`);
+        } else {
+            showFeedback(false, `Đáp án đúng:<br><strong>${originalSentences[currentIndex]}</strong>`);
+        }
+        setTimeout(() => {
+            currentIndex++;
+            loadQuestion();
+        }, 3000);
+    });
+
+    // Khởi chạy ứng dụng
+    loadQuestion();
+</script>
+
+</body>
+</html>
